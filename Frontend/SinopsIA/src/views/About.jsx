@@ -1,139 +1,90 @@
-import React from "react";
+import { Link } from "react-router-dom";
+import { ROUTES } from "../routes/paths";
 
-const About = () => {
-  const textPrimary = "text-gray-800";
-  const textSecondary = "text-gray-700";
-  const textMuted = "text-gray-600";
-  const bgMain = "bg-[#F5EFEB]";
-  const bgCard = "bg-white border-gray-200";
+const team = [
+  { initials: "FS", name: "Francisco José Salmerón" },
+  { initials: "IT", name: "Ismael Torres" },
+  { initials: "A", name: "Alejandro" },
+];
 
-  return (
-    <div className={`max-w-full mx-auto px-6 py-10 min-h-screen ${bgMain}`}>
-      {/* Header */}
-      <header className="text-center mb-16">
-        <h1 className={`text-4xl font-semibold ${textPrimary}`}>Sobre Nosotros</h1>
-        <p className={`mt-2 text-lg ${textMuted}`}>
-          Tu aliado confiable en la compra y venta de coches
+const About = () => (
+  <main className="min-h-screen bg-[#F5EFEB] px-5 py-12 text-slate-900 sm:px-8 lg:px-12">
+    <div className="mx-auto max-w-5xl">
+      <header className="rounded-3xl bg-white px-7 py-12 text-center shadow-xl shadow-slate-900/5 sm:px-12">
+        <p className="inline-flex rounded-full bg-sky-100 px-4 py-2 text-sm font-semibold text-sky-800">
+          Sobre nosotros
+        </p>
+        <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl">
+          Historias que encajan contigo
+        </h1>
+        <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-slate-600">
+          SinopsisIA es un recomendador de películas, series y libros que combina
+          inteligencia artificial y datos de catálogo para ayudarte a encontrar
+          tu próxima historia favorita.
         </p>
       </header>
 
-      {/* Quiénes somos */}
-      <section className="mb-16">
-        <h2 className={`text-3xl font-semibold ${textPrimary}`}>Quiénes Somos</h2>
-        <p className={`mt-4 text-lg ${textSecondary}`}>
-           En <strong>RenovAuto</strong>, nos dedicamos a conectar compradores y
-          vendedores de coches de manera sencilla, segura y confiable. Nuestra
-          misión es hacer que la compra y venta de vehículos sea una experiencia
-          libre de estrés, ofreciendo un espacio transparente y accesible para
-          todos. Nos apasiona el mundo automotriz y estamos aquí para hacer que
-          encontrar tu coche ideal o vender tu vehículo sea un proceso rápido y
-          seguro.
-        </p>
+      <section className="mt-10 grid gap-6 md:grid-cols-2">
+        <article className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+          <span aria-hidden="true" className="text-4xl">✨</span>
+          <h2 className="mt-4 text-2xl font-bold">Nuestra idea</h2>
+          <p className="mt-3 leading-7 text-slate-600">
+            A veces cuesta decidir qué ver o qué leer entre tantas opciones.
+            SinopsisIA te propone recomendaciones según tus géneros favoritos y
+            lo que te apetece, para que descubrir una buena historia sea más
+            sencillo.
+          </p>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+          <span aria-hidden="true" className="text-4xl">🎬</span>
+          <h2 className="mt-4 text-2xl font-bold">Cómo funciona</h2>
+          <p className="mt-3 leading-7 text-slate-600">
+            Nos cuentas qué tipo de contenido buscas y qué historias te gustan.
+            La IA genera sugerencias y los catálogos ayudan a mostrar portadas,
+            pósteres y, cuando hay datos disponibles, dónde ver películas y
+            series.
+          </p>
+        </article>
       </section>
 
-      {/* Nuestra Historia */}
-      <section className="mb-16">
-        <h2 className={`text-3xl font-semibold ${textPrimary}`}>Nuestra Historia</h2>
-        <p className={`mt-4 text-lg ${textSecondary}`}>
-          <strong>RenovAuto</strong> nació en 2025 con el objetivo de
-          transformar la manera en que las personas compran y venden coches.
-          Empezamos con la idea de crear una plataforma fácil de usar, sin las
-          complicaciones que suelen tener las compras tradicionales. Desde
-          entonces, hemos crecido y ayudado a miles de usuarios a encontrar su
-          coche perfecto o vender sus vehículos de forma sencilla, sin
-          intermediarios innecesarios.
-        </p>
-      </section>
-
-      {/* Nuestro Equipo */}
-      <section className="mb-16">
-        <h2 className={`text-3xl font-semibold ${textPrimary}`}>Nuestro Equipo</h2>
-        <p className={`mt-4 text-lg ${textSecondary}`}>
-          Nuestro equipo está compuesto por expertos en el sector automotriz,
-          tecnología y atención al cliente. Todos compartimos una visión común:
-          hacer que cada transacción sea segura y sin estrés. Ya sea que busques
-          un coche de segunda mano o quieras vender el tuyo, nuestro equipo está
-          aquí para ayudarte en cada paso del proceso.
-        </p>
-        <div className="flex justify-center gap-12 mt-8 flex-wrap">
-          <div className="text-center">
-            <img
-              src="/images/salmeron.jpg"
-              alt="Francisco José Salmerón"
-              className="rounded-full w-40 h-40 object-cover mx-auto"
-            />
-            <p className={`mt-2 text-lg ${textMuted}`}>
-              Francisco José Salmerón - CEO y Programador
-            </p>
-          </div>
-          <div className="text-center">
-            <img
-              src="/images/ismael.jpg"
-              alt="Ismael Torres"
-              className="rounded-full w-40 h-40 object-cover mx-auto"
-            />
-            <p className={`mt-2 text-lg ${textMuted}`}>
-              Ismael Torres - Director de Marketing y Diseño
-            </p>
-          </div>
+      <section className="mt-10 rounded-2xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold">Nuestro equipo</h2>
+          <p className="mt-3 text-slate-600">
+            Somos el equipo que está detrás de SinopsisIA.
+          </p>
         </div>
-      </section>
-
-      {/* Testimonios */}
-      <section className="mb-16">
-        <h2 className={`text-3xl font-semibold ${textPrimary}`}>Testimonios</h2>
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[
-            {
-              quote:
-                "¡Gracias a RenovAuto encontré el coche perfecto para mi familia! Todo el proceso fue sencillo y rápido. ¡Lo recomiendo al 100%!",
-              name: "María López",
-            },
-            {
-              quote:
-                "Vender mi coche fue muy fácil, y el equipo de RenovAuto me guió en todo momento. ¡Definitivamente volveré a usar la plataforma!",
-              name: "Carlos Rodríguez",
-            },
-            {
-              quote:
-                "Nunca pensé que comprar un coche seminuevo sería tan fácil. ¡Muy satisfecho con mi compra!",
-              name: "Ana Martínez",
-            },
-            {
-              quote:
-                "Excelente atención al cliente. Me ayudaron a resolver todas mis dudas. ¡Gracias RenovAuto!",
-              name: "Javier Méndez",
-            },
-          ].map((testimonial, index) => (
-            <div
-              key={index}
-              className={`shadow-md rounded-2xl p-6 border ${bgCard}`}
-            >
-              <p className={`text-lg italic ${textSecondary}`}>
-                “{testimonial.quote}”
-              </p>
-              <p className={`text-right font-semibold mt-4 ${textMuted}`}>
-                – {testimonial.name}
-              </p>
-            </div>
+        <ul className="mt-8 flex flex-wrap justify-center gap-8">
+          {team.map((member) => (
+            <li key={member.name} className="w-40 text-center">
+              <div
+                aria-hidden="true"
+                className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-sky-100 text-2xl font-bold text-sky-800"
+              >
+                {member.initials}
+              </div>
+              <p className="mt-3 font-semibold text-slate-800">{member.name}</p>
+            </li>
           ))}
-        </div>
-      </section>
-
-      {/* Contáctanos */}
-      <section className="mb-16">
-        <h2 className={`text-3xl font-semibold ${textPrimary}`}>Contáctanos</h2>
-        <p className={`mt-4 text-lg ${textSecondary}`}>
-          Si tienes alguna pregunta o necesitas ayuda, no dudes en ponerte en contacto con nosotros.
-        </p>
-        <ul className={`mt-4 text-lg ${textSecondary}`}>
-          <li><strong>Teléfono:</strong> +34 123 456 789</li>
-          <li><strong>Email:</strong> contacto@RenovAuto.com</li>
-          <li><strong>Dirección:</strong> Calle Automotriz 123, Ciudad, País</li>
         </ul>
       </section>
+
+      <section className="mt-10 rounded-2xl bg-sky-800 px-7 py-10 text-center text-white sm:px-10">
+        <h2 className="text-3xl font-bold">¿Listo para descubrir algo nuevo?</h2>
+        <p className="mx-auto mt-3 max-w-2xl leading-7 text-sky-100">
+          Cuéntanos qué te gusta y deja que SinopsisIA te ayude a encontrar tu
+          próxima película, serie o libro.
+        </p>
+        <Link
+          to={ROUTES.HOME}
+          className="mt-6 inline-flex rounded-xl bg-white px-6 py-3 font-semibold text-sky-800 transition hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-sky-800"
+        >
+          Probar SinopsisIA
+        </Link>
+      </section>
     </div>
-  );
-};
+  </main>
+);
 
 export default About;
