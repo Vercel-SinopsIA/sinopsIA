@@ -23,7 +23,7 @@ servidor.
 Abre Git Bash en la raíz del repositorio y entra a la aplicación:
 
 ```bash
-cd Frontend/FitAdapt-AI
+cd Frontend/SinopsIA
 ```
 
 Instala las dependencias del frontend:
@@ -33,7 +33,7 @@ npm install
 ```
 
 Crea el entorno virtual en `Frontend/.venv` (no dentro de
-`Frontend/FitAdapt-AI`) e instala las dependencias del backend. El repositorio
+`Frontend/SinopsIA`) e instala las dependencias del backend. El repositorio
 ya contiene ese entorno local; no necesitas crear otro si esa carpeta existe:
 
 ```bash
@@ -65,12 +65,12 @@ Environment Variables**.
 
 Abre dos terminales Git Bash desde la raíz del repositorio. En cada una,
 cambia a la carpeta de la aplicación. El entorno virtual está en
-`Frontend/.venv`, un nivel por encima de `Frontend/FitAdapt-AI`.
+`Frontend/.venv`, un nivel por encima de `Frontend/SinopsIA`.
 
 ### Terminal 1: backend FastAPI
 
 ```bash
-cd Frontend/FitAdapt-AI
+cd Frontend/SinopsIA
 source ../.venv/Scripts/activate
 python -m uvicorn api.index:app --reload --host 127.0.0.1 --port 8000
 ```
@@ -86,7 +86,7 @@ Debe devolver un JSON con `"status":"ok"`.
 ### Terminal 2: frontend Vite
 
 ```bash
-cd Frontend/FitAdapt-AI
+cd Frontend/SinopsIA
 npm run dev
 ```
 
@@ -110,7 +110,7 @@ la interfaz avisa qué catálogo limitó las consultas. No se registran las clav
 ni las URLs de petición.
 
 También se puede llamar a la API directamente. Desde una terminal en
-`Frontend/FitAdapt-AI`:
+`Frontend/SinopsIA`:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/api/recommend \

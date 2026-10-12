@@ -25,7 +25,7 @@ servidor.
 Abre Git Bash en la raíz del repositorio:
 
 ```bash
-cd Frontend/FitAdapt-AI
+cd Frontend/SinopsIA
 ```
 
 Instala las dependencias de JavaScript:
@@ -67,13 +67,13 @@ Environment Variables**.
 ## Arrancar en desarrollo
 
 Abre dos terminales Git Bash en la raíz del repositorio. En ambas entra a esta
-carpeta con `cd Frontend/FitAdapt-AI`. El entorno virtual está en
+carpeta con `cd Frontend/SinopsIA`. El entorno virtual está en
 `Frontend/.venv`.
 
 En la primera, arranca FastAPI:
 
 ```bash
-cd Frontend/FitAdapt-AI
+cd Frontend/SinopsIA
 source ../.venv/Scripts/activate
 python -m uvicorn api.index:app --reload --host 127.0.0.1 --port 8000
 ```
@@ -87,7 +87,7 @@ curl http://127.0.0.1:8000/api/health
 En la segunda terminal, arranca Vite:
 
 ```bash
-cd Frontend/FitAdapt-AI
+cd Frontend/SinopsIA
 npm run dev
 ```
 
