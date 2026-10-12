@@ -1,16 +1,143 @@
-# React + Vite
+# SinopsisIA
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Aplicación React + Vite con Tailwind CSS y backend FastAPI. El backend valida
+las preferencias con Pydantic y consulta Gemini; la clave solo se usa en el
+servidor.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Git Bash para Windows.
+- Node.js y npm.
+- Python 3.10 o superior.
+- Una clave Gemini nueva. Si alguna clave se compartió previamente, revócala y
+  crea otra.
+- Una clave API de TMDb para consultar pósteres y disponibilidad de películas y
+  series ([solicítala en la configuración API de TMDb](https://www.themoviedb.org/settings/api)).
+  Las portadas de libros se buscan primero en Google Books y, si no hay
+  portada o Google Books responde con un error (por ejemplo, HTTP 503), se
+  intenta Open Library primero con título y autor y después solo con el título;
+  ninguno requiere una clave adicional. Google Books admite `GOOGLE_BOOKS_API_KEY` para
+  autenticar consultas; si no se configura o no hay portada, se intenta Open
+  Library.
 
-## React Compiler
+## Instalar y configurar
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Abre Git Bash en la raíz del repositorio:
 
-## Expanding the Oxlint configuration
+```bash
+cd Frontend/FitAdapt-AI
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Instala las dependencias de JavaScript:
+
+```bash
+npm install
+```
+
+Crea el entorno virtual en `Frontend/.venv`, un nivel por encima de esta
+carpeta de aplicación. Ese entorno ya existe en este repositorio; si no está,
+créalo con el comando siguiente:
+
+```bash
+if [ ! -d ../.venv ]; then python -m venv ../.venv; fi
+source ../.venv/Scripts/activate
+python -m pip install -r requirements.txt
+```
+
+Copia la plantilla de variables:
+
+```bash
+if [ ! -f .env.local ]; then cp .env.local.example .env.local; fi
+```
+
+Edita `.env.local` con un editor y rellena `GEMINI_API_KEY` y `TMDB_API_KEY`.
+Opcionalmente, añade `GOOGLE_BOOKS_API_KEY` para autenticar las búsquedas de
+portadas de Google Books ([Google Books API](https://developers.google.com/books/docs/v1/using)).
+Puedes dejar `GEMINI_MODEL=gemini-3.8-flash` o seleccionar otro modelo
+disponible para tu cuenta. `TMDB_REGION=ES` configura la región usada para las
+plataformas de streaming; puedes cambiarla por otro código de país compatible.
+
+**No publiques ni subas `.env.local` a Git.** Está excluido mediante
+`.gitignore`. No guardes la clave en el frontend ni en variables `VITE_*`,
+porque acabaría incluida en el código público que recibe el navegador. En
+Vercel, configura `GEMINI_API_KEY`, `TMDB_API_KEY` y, opcionalmente,
+`GEMINI_MODEL`, `TMDB_REGION` y `GOOGLE_BOOKS_API_KEY` en **Project Settings →
+Environment Variables**.
+
+## Arrancar en desarrollo
+
+Abre dos terminales Git Bash en la raíz del repositorio. En ambas entra a esta
+carpeta con `cd Frontend/FitAdapt-AI`. El entorno virtual está en
+`Frontend/.venv`.
+
+En la primera, arranca FastAPI:
+
+```bash
+cd Frontend/FitAdapt-AI
+source ../.venv/Scripts/activate
+python -m uvicorn api.index:app --reload --host 127.0.0.1 --port 8000
+```
+
+Puedes comprobarlo con otra terminal:
+
+```bash
+curl http://127.0.0.1:8000/api/health
+```
+
+En la segunda terminal, arranca Vite:
+
+```bash
+cd Frontend/FitAdapt-AI
+npm run dev
+```
+
+Abre la URL local que indique Vite, normalmente `http://localhost:5173`. El
+proxy de Vite redirige `/api` al backend del puerto 8000.
+
+## Probar
+
+En el formulario del Home, selecciona películas, series, libros o todos los
+tipos, indica géneros separados por comas, describe tus preferencias y pulsa
+**Recomiéndame**. Los pósteres y plataformas de películas y series proceden de
+TMDb para la región configurada; las portadas y autores de libros se buscan
+primero en Google Books, con Open Library como alternativa para las portadas.
+Si ninguno encuentra una imagen, se mostrará el resultado sin ella.
+
+El terminal de FastAPI registra cada fase con `provider` y `operation`:
+`Gemini / generation`, `Google Books / búsqueda de libros`, `Open Library /
+búsqueda alternativa de portada` o `TMDb / búsqueda de película, serie o
+disponibilidad`. Si un catálogo devuelve HTTP 429, la respuesta identifica
+cuál y conserva las recomendaciones de Gemini. Los logs no imprimen claves ni
+URLs de petición.
+
+También puedes llamar directamente a la API:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/recommend \
+  -H "Content-Type: application/json" \
+  -d '{"content_type":"serie","genres":["misterio","fantasía"],"preferences":"Me gustan las historias de misterio y aventura."}'
+```
+
+Para probar la validación, envía una lista de géneros vacía o preferencias muy
+cortas: la API debe devolver HTTP 422 antes de llamar a Gemini.
+Cuando Gemini responde HTTP 503 por saturación, FastAPI reintenta hasta dos
+veces; si el proveedor sigue ocupado, la interfaz te pide que lo intentes más
+tarde.
+Si Gemini devuelve HTTP 429 indicando que se agotó la cuota, no se reintenta:
+la API informa de la espera indicada por el proveedor y enlaza al panel de
+límites de uso.
+
+Las pruebas automáticas usan un cliente Gemini simulado, por lo que no consumen
+llamadas ni necesitan una clave real:
+
+```bash
+source ../.venv/Scripts/activate
+python -m pytest -q
+```
+
+## Build y lint del frontend
+
+```bash
+npm run build
+npm run lint
+```
