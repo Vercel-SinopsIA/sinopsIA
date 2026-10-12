@@ -140,3 +140,37 @@ python -m pytest -q
 npm run build
 npm run lint
 ```
+
+## Despliegue en Vercel
+
+La aplicación incluye `Frontend/SinopsIA/vercel.json`, que reescribe las rutas
+`/api/*` hacia `api/index.py`. Ese archivo expone FastAPI como función Python;
+Vite genera el frontend estático en `dist`. No se incluye el CLI de Vercel como
+dependencia npm.
+
+Para desplegar:
+
+1. Importa el repositorio desde Git en Vercel.
+2. Selecciona `Frontend/SinopsIA` como **Root Directory** y el preset de Vite.
+3. Usa `npm run build` como comando de build y `dist` como directorio de salida.
+4. En **Settings → Environment Variables**, configura:
+   - `GEMINI_API_KEY` (obligatoria).
+   - `TMDB_API_KEY` (obligatoria para recomendaciones de películas y series).
+   - `GEMINI_MODEL` (opcional; por defecto `gemini-3.8-flash`).
+   - `TMDB_REGION` (opcional; por defecto `ES`).
+   - `GOOGLE_BOOKS_API_KEY` (opcional).
+5. Añade cada variable a los entornos Preview, Production o Development que
+   vayas a usar y vuelve a desplegar para que surtan efecto.
+6. Verifica `/api/health` y prueba una recomendación desde la web desplegada.
+
+Las claves son variables del servidor: no deben tener prefijo `VITE_` ni
+incluirse en el código del frontend. El `vercel.json` actual solo define la
+reescritura de `/api/*`; dominios, variables y ajustes de proyecto se gestionan
+por separado en el panel de Vercel.
+
+**Nota sobre dependencias Python:** el archivo actual está en
+`Frontend/requirements.txt`, fuera del directorio configurado como raíz de la
+aplicación (`Frontend/SinopsIA`). Asegúrate de que el build de Vercel encuentra
+ese archivo. Si el build indica que faltan dependencias del backend, coloca una
+copia de `requirements.txt` en `Frontend/SinopsIA` con la misma lista de
+paquetes y vuelve a desplegar.
