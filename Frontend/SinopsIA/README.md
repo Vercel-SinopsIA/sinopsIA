@@ -5,7 +5,7 @@ las preferencias con Pydantic y consulta Gemini; la clave solo se usa en el
 servidor.
 
 ## Requisitos
-
+-redeploy
 - Git Bash para Windows.
 - Node.js y npm.
 - Python 3.10 o superior.
