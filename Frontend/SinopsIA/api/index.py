@@ -532,6 +532,10 @@ def health_check() -> dict[str, str]:
 
 
 @app.post(
+    "/recommend",
+    response_model=RecommendationResponse,
+)
+@app.post(
     "/api/recommend",
     response_model=RecommendationResponse,
 )
