@@ -11,7 +11,7 @@ export const router = createBrowserRouter([
     children: [
       // Rutas públicas
       {
-        path: ROUTES.HOME, // "/"
+        path: ROUTES.HOME,
         element: <Home />,
       },
       {
