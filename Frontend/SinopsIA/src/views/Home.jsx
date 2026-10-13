@@ -41,9 +41,9 @@ export default function Home() {
     setIsLoading(true);
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 120_000);
+    const apiBaseUrl = getApiBaseUrl();
 
     try {
-      const apiBaseUrl = getApiBaseUrl();
       const response = await fetch(`${apiBaseUrl}/api/recommend`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

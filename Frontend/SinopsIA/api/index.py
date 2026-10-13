@@ -514,6 +514,11 @@ def _enrich_recommendations(
     return enriched, unavailable_providers
 
 
+@app.options("/{full_path:path}")
+def preflight_handler(full_path: str) -> dict[str, str]:
+    return {"status": "ok"}
+
+
 @app.get("/api/health")
 def health_check() -> dict[str, str]:
     return {"status": "ok", "service": "SinopsIA"}
