@@ -83,7 +83,7 @@ export default function Home() {
             Tu próxima historia empieza aquí
           </p>
           <h1 className="text-5xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">
-            Sinopsis<span className="text-sky-700">IA</span>
+            Sinops<span className="text-sky-700">IA</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
             Un recomendador de inteligencia artificial para encontrar películas,
