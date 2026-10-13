@@ -10,10 +10,10 @@ from pathlib import Path
 from typing import Literal
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from urllib.request import Request as URLRequest, urlopen
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request, Response, status
+from fastapi import FastAPI, HTTPException, Request as FastAPIRequest, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from google import genai
 from google.genai import errors, types
@@ -88,7 +88,7 @@ app.add_middleware(
 
 
 @app.middleware("http")
-async def cors_handler(request: Request, call_next):
+async def cors_handler(request: FastAPIRequest, call_next):
     if request.method == "OPTIONS":
         return Response(
             status_code=200,
@@ -177,7 +177,7 @@ def _best_catalog_match(items: list[dict], title: str, title_fields: tuple[str, 
 
 
 def _fetch_json(url: str, provider: str, operation: str) -> dict:
-    request = Request(
+    request = URLRequest(
         url,
         headers={
             "Accept": "application/json",
