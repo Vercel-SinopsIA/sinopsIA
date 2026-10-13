@@ -75,11 +75,13 @@ export default function Home() {
       setRecommendations(data.recommendations);
       setCatalogNotice(data.catalog_notice || "");
     } catch (requestError) {
-      setError(
-        requestError.name === "AbortError"
-          ? "La solicitud está tardando demasiado. Comprueba el backend e inténtalo de nuevo."
-          : requestError.message || "No se pudo conectar con el servicio.",
-      );
+      let friendlyError = requestError.message || "No se pudo conectar con el servicio.";
+      if (requestError.name === "AbortError") {
+        friendlyError = "La solicitud está tardando demasiado. Comprueba el backend e inténtalo de nuevo.";
+      } else if (requestError.message === "Failed to fetch") {
+        friendlyError = `No se pudo conectar con el backend (${apiBaseUrl || 'servidor local'}). Verifica que el servicio esté activo y con el certificado SSL válido.`;
+      }
+      setError(friendlyError);
     } finally {
       window.clearTimeout(timeoutId);
       setIsLoading(false);
