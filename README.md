@@ -17,6 +17,8 @@ servidor.
   Library; no necesitan clave adicional. Se puede configurar opcionalmente
   `GOOGLE_BOOKS_API_KEY` para autenticar las consultas a
   [Google Books API](https://developers.google.com/books/docs/v1/using).
+### Pediente
+  - Autentificacion con clark
 
 ## Instalar y configurar
 
@@ -174,3 +176,5 @@ aplicación (`Frontend/SinopsIA`). Asegúrate de que el build de Vercel encuentr
 ese archivo. Si el build indica que faltan dependencias del backend, coloca una
 copia de `requirements.txt` en `Frontend/SinopsIA` con la misma lista de
 paquetes y vuelve a desplegar.
+
+Fin

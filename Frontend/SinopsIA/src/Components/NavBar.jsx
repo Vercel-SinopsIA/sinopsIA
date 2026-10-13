@@ -31,7 +31,7 @@ const NavBar = () => {
           </div>
 
           <span className="hidden text-sm font-medium text-white sm:block sm:text-base">
-            Recomendador de películas y libros
+            Recomendador de series, películas y libros
           </span>
         </div>
       </nav>
