@@ -7,6 +7,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  base: '/sinopsIA/',
   server: {
     proxy: {
       "/api": {
