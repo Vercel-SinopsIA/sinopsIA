@@ -4,7 +4,7 @@ import { ROUTES } from "../routes/paths";
 const team = [
   { initials: "FS", name: "Francisco José Salmerón" },
   { initials: "IT", name: "Ismael Torres" },
-  { initials: "A", name: "Alejandro" },
+  { initials: "A", name: "Alejandro Álvarez" },
 ];
 
 const About = () => (

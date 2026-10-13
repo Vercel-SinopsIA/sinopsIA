@@ -5,7 +5,7 @@ function Footer() {
     <>
       <footer className="bg-[#567C8D] p-4 w-full">
         <p className="text-center py-4 text-white">
-          © 2025 SinopsisIA. Todos los derechos reservados.
+          © 2026 SinopsisIA. Todos los derechos reservados.
         </p>
       </footer>
     </>
