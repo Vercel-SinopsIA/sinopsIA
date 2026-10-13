@@ -14,6 +14,7 @@ from urllib.request import Request, urlopen
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from google import genai
 from google.genai import errors, types
 from httpx import TimeoutException
@@ -75,6 +76,14 @@ app = FastAPI(
     title="SinopsIA API",
     description="API privada para generar recomendaciones de películas, series y libros.",
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 SYSTEM_PROMPT = """

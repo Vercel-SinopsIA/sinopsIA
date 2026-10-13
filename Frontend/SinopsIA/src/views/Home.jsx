@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "../routes/paths";
+import { getApiBaseUrl } from "../utils/apiConfig";
 
 const features = [
   {
@@ -42,7 +43,8 @@ export default function Home() {
     const timeoutId = window.setTimeout(() => controller.abort(), 120_000);
 
     try {
-      const response = await fetch("/api/recommend", {
+      const apiBaseUrl = getApiBaseUrl();
+      const response = await fetch(`${apiBaseUrl}/api/recommend`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
@@ -53,13 +55,22 @@ export default function Home() {
         }),
       });
 
-      const data = await response.json();
       if (!response.ok) {
-        const validationError = Array.isArray(data.detail)
-          ? data.detail.map((item) => item.msg).join(" ")
-          : data.detail;
-        throw new Error(validationError || "No se pudieron obtener recomendaciones.");
+        let errorMessage = `Error del servidor (${response.status})`;
+        try {
+          const errorData = await response.json();
+          errorMessage = Array.isArray(errorData.detail)
+            ? errorData.detail.map((item) => item.msg).join(" ")
+            : errorData.detail || errorMessage;
+        } catch {
+          if (response.status === 404) {
+            errorMessage = "No se encontró el servicio backend (/api/recommend). Asegúrate de que el backend esté desplegado.";
+          }
+        }
+        throw new Error(errorMessage);
       }
+
+      const data = await response.json();
 
       setRecommendations(data.recommendations);
       setCatalogNotice(data.catalog_notice || "");
