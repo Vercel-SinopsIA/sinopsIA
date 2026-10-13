@@ -519,11 +519,16 @@ def preflight_handler(full_path: str) -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/health")
 @app.get("/api/health")
 def health_check() -> dict[str, str]:
     return {"status": "ok", "service": "SinopsIA"}
 
 
+@app.post(
+    "/recommend",
+    response_model=RecommendationResponse,
+)
 @app.post(
     "/api/recommend",
     response_model=RecommendationResponse,
