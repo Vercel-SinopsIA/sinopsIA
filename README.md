@@ -1,4 +1,4 @@
-# SinopsisIA
+# SinopsIA
 
 Aplicación React + Vite con Tailwind CSS y backend FastAPI. FastAPI valida las
 preferencias con Pydantic y consulta Gemini; la clave de Gemini solo se usa en el

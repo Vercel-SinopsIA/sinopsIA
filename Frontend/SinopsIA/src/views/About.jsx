@@ -18,7 +18,7 @@ const About = () => (
           Historias que encajan contigo
         </h1>
         <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-slate-600">
-          SinopsisIA es un recomendador de películas, series y libros que combina
+          SinopsIA es un recomendador de películas, series y libros que combina
           inteligencia artificial y datos de catálogo para ayudarte a encontrar
           tu próxima historia favorita.
         </p>
@@ -30,7 +30,7 @@ const About = () => (
           <h2 className="mt-4 text-2xl font-bold">Nuestra idea</h2>
           <p className="mt-3 leading-7 text-slate-600">
             A veces cuesta decidir qué ver o qué leer entre tantas opciones.
-            SinopsisIA te propone recomendaciones según tus géneros favoritos y
+            SinopsIA te propone recomendaciones según tus géneros favoritos y
             lo que te apetece, para que descubrir una buena historia sea más
             sencillo.
           </p>
@@ -52,7 +52,7 @@ const About = () => (
         <div className="text-center">
           <h2 className="text-3xl font-bold">Nuestro equipo</h2>
           <p className="mt-3 text-slate-600">
-            Somos el equipo que está detrás de SinopsisIA.
+            Somos el equipo que está detrás de SinopsIA.
           </p>
         </div>
         <ul className="mt-8 flex flex-wrap justify-center gap-8">
@@ -73,14 +73,14 @@ const About = () => (
       <section className="mt-10 rounded-2xl bg-sky-800 px-7 py-10 text-center text-white sm:px-10">
         <h2 className="text-3xl font-bold">¿Listo para descubrir algo nuevo?</h2>
         <p className="mx-auto mt-3 max-w-2xl leading-7 text-sky-100">
-          Cuéntanos qué te gusta y deja que SinopsisIA te ayude a encontrar tu
+          Cuéntanos qué te gusta y deja que SinopsIA te ayude a encontrar tu
           próxima película, serie o libro.
         </p>
         <Link
           to={ROUTES.HOME}
           className="mt-6 inline-flex rounded-xl bg-white px-6 py-3 font-semibold text-sky-800 transition hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-sky-800"
         >
-          Probar SinopsisIA
+          Probar SinopsIA
         </Link>
       </section>
     </div>

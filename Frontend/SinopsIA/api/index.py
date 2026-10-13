@@ -72,13 +72,13 @@ class RecommendationResponse(BaseModel):
 
 
 app = FastAPI(
-    title="SinopsisIA API",
+    title="SinopsIA API",
     description="API privada para generar recomendaciones de películas, series y libros.",
     version="1.0.0",
 )
 
 SYSTEM_PROMPT = """
-Eres SinopsisIA, un recomendador de películas, series y libros.
+Eres SinopsIA, un recomendador de películas, series y libros.
 Devuelve exactamente tres recomendaciones adecuadas al tipo de contenido,
 géneros y preferencias recibidos. Responde exclusivamente con JSON válido
 que cumpla el esquema indicado. Cada recomendación debe incluir tipo
@@ -154,7 +154,7 @@ def _fetch_json(url: str, provider: str, operation: str) -> dict:
         url,
         headers={
             "Accept": "application/json",
-            "User-Agent": "SinopsisIA/1.0 (book cover lookup)",
+            "User-Agent": "SinopsIA/1.0 (book cover lookup)",
         },
     )
     logger.info("Catalog request started: provider=%s operation=%s.", provider, operation)
@@ -507,7 +507,7 @@ def _enrich_recommendations(
 
 @app.get("/api/health")
 def health_check() -> dict[str, str]:
-    return {"status": "ok", "service": "SinopsisIA"}
+    return {"status": "ok", "service": "SinopsIA"}
 
 
 @app.post(

@@ -26,7 +26,7 @@ const NavBar = () => {
               onClick={closeMenu}
               className="text-xl font-bold text-white sm:text-2xl"
             >
-              SinopsisIA
+              SinopsIA
             </NavLink>
           </div>
 
