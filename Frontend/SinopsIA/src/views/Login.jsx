@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaLock, FaSpinner, FaUser } from 'react-icons/fa';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL;
+const SOCKET_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://sinopsiaapi.itorgon.es' : '');
 
 const Login = () => {
   const [username, setUsername] = useState('');

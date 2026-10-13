@@ -14,6 +14,7 @@ from urllib.request import Request, urlopen
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from google import genai
 from google.genai import errors, types
 from httpx import TimeoutException
@@ -75,6 +76,20 @@ app = FastAPI(
     title="SinopsIA API",
     description="API privada para generar recomendaciones de películas, series y libros.",
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://sinopsiagit.itorgon.es",
+        "https://itorgon.es",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_origin_regex=r"^https:\/\/([a-zA-Z0-9-]+\.)?itorgon\.es$|^https:\/\/.*\.github\.io$",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 SYSTEM_PROMPT = """
@@ -505,6 +520,12 @@ def _enrich_recommendations(
     return enriched, unavailable_providers
 
 
+@app.get("/")
+def root() -> dict[str, str]:
+    return {"status": "ok", "service": "SinopsIA API", "docs": "/docs", "health": "/api/health"}
+
+
+@app.get("/health")
 @app.get("/api/health")
 def health_check() -> dict[str, str]:
     return {"status": "ok", "service": "SinopsIA"}

@@ -1,0 +1,21 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/Frontend/SinopsIA/api/index.py"
+    },
+    {
+      "source": "/docs",
+      "destination": "/Frontend/SinopsIA/api/index.py"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/Frontend/SinopsIA/api/index.py"
+    },
+    {
+      "source": "/health",
+      "destination": "/Frontend/SinopsIA/api/index.py"
+    }
+  ]
+}
+

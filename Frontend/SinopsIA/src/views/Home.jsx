@@ -23,6 +23,8 @@ const features = [
   },
 ];
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://sinopsiaapi.itorgon.es" : "");
+
 export default function Home() {
   const [contentType, setContentType] = useState("ambos");
   const [genres, setGenres] = useState("");
@@ -42,7 +44,7 @@ export default function Home() {
     const timeoutId = window.setTimeout(() => controller.abort(), 120_000);
 
     try {
-      const response = await fetch("/api/recommend", {
+      const response = await fetch(`${API_BASE_URL}/api/recommend`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
