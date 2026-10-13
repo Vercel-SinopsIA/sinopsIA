@@ -13,7 +13,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from google import genai
 from google.genai import errors, types
@@ -80,11 +80,29 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"^https?://.*",
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def cors_handler(request: Request, call_next):
+    if request.method == "OPTIONS":
+        return Response(
+            status_code=200,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE, PATCH",
+                "Access-Control-Allow-Headers": "*",
+            },
+        )
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
 
 SYSTEM_PROMPT = """
 Eres SinopsIA, un recomendador de películas, series y libros.
@@ -515,8 +533,19 @@ def _enrich_recommendations(
 
 
 @app.options("/{full_path:path}")
-def preflight_handler(full_path: str) -> dict[str, str]:
-    return {"status": "ok"}
+@app.options("/api/recommend")
+@app.options("/recommend")
+@app.options("/api/health")
+@app.options("/health")
+def preflight_handler(full_path: str = "") -> Response:
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE, PATCH",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
 
 
 @app.get("/health")
