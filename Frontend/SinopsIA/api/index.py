@@ -551,8 +551,11 @@ def preflight_handler(full_path: str = "") -> Response:
 
 
 @app.get("/")
+@app.get("/index.py")
+@app.get("/api")
+@app.get("/api/")
 def root() -> dict[str, str]:
-    return {"status": "ok", "service": "SinopsIA API", "docs": "/docs", "health": "/api/health"}
+    return {"status": "ok", "service": "SinopsIA API", "docs": "/docs", "health": "/health"}
 
 
 @app.get("/health")

@@ -59,16 +59,19 @@ export default function Home() {
           body: JSON.stringify(payload),
         });
 
-        if (response.status === 404 && apiBaseUrl.includes("sinopsiaapi")) {
-          response = await fetch("https://sinopsia.itorgon.es/api/recommend", {
+        if (!response.ok && apiBaseUrl && !apiBaseUrl.includes("sinopsia.itorgon.es")) {
+          const fallbackResponse = await fetch("https://sinopsia.itorgon.es/api/recommend", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             signal: controller.signal,
             body: JSON.stringify(payload),
           });
+          if (fallbackResponse.ok) {
+            response = fallbackResponse;
+          }
         }
       } catch (networkError) {
-        if (apiBaseUrl.includes("sinopsiaapi")) {
+        if (apiBaseUrl && !apiBaseUrl.includes("sinopsia.itorgon.es")) {
           response = await fetch("https://sinopsia.itorgon.es/api/recommend", {
             method: "POST",
             headers: { "Content-Type": "application/json" },

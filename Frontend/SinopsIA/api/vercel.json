@@ -13,10 +13,17 @@
     {
       "source": "/api/(.*)",
       "destination": "/index.py"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.py"
     }
-  ]
+  ],
+  "functions": {
+    "index.py": {
+      "maxDuration": 60
+    },
+    "main.py": {
+      "maxDuration": 60
+    },
+    "*.py": {
+      "maxDuration": 60
+    }
+  }
 }
