@@ -144,13 +144,17 @@ npm run lint
 
 ## Despliegue en Vercel
 
-El proyecto incluye `vercel.json`, que reescribe las rutas `/api/*` hacia
-`api/index.py`. Vercel ejecuta ese archivo como función Python y sirve el
-frontend generado por Vite desde `dist`. No hace falta añadir un paquete de
-Vercel a `package.json`; la configuración se gestiona en el proyecto de Vercel.
+El proyecto incluye `vercel.json`, que dirige las rutas `/api/*` a
+`api/index.py` (FastAPI como función Python) y el resto de rutas a `index.html`
+para que el inicio cargue en `/` y React gestione la navegación. Vite genera el
+frontend estático en `dist`. El navegador llama a la API con rutas relativas
+(`/api/...`), así que el frontend y la API comparten el mismo dominio, sin
+depender de CORS ni de un segundo dominio. No hace falta añadir un paquete de
+Vercel a `package.json`.
 
 1. Importa el repositorio de Git en Vercel.
-2. Configura **Root Directory** como `Frontend/SinopsIA`.
+2. Configura **Root Directory** como `Frontend/SinopsIA`, donde están juntos
+   `package.json`, `vercel.json` y `api/index.py`.
 3. Usa el preset de Vite. El comando de build es `npm run build` y el directorio
    de salida es `dist`.
 4. En **Settings → Environment Variables**, añade:
@@ -161,20 +165,14 @@ Vercel a `package.json`; la configuración se gestiona en el proyecto de Vercel.
    - `TMDB_REGION` (opcional; por defecto `ES`).
    - `GOOGLE_BOOKS_API_KEY` (opcional; Open Library se usa como alternativa
      para las portadas).
-5. Crea un despliegue y comprueba `/api/health`. Después, envía una
-   recomendación desde la página para validar también Gemini y los catálogos.
+5. Crea un despliegue y comprueba que la URL principal (`/`) muestra el inicio.
+   Después, comprueba `/api/health` y envía una recomendación desde la página
+   para validar también Gemini y los catálogos.
 
 Configura las variables en los entornos de Vercel que vayas a utilizar
 (Production, Preview y/o Development). No las añadas al frontend ni a variables
 con prefijo `VITE_`.
 
-**Dependencias Python:** el archivo del repositorio está en
-`Frontend/requirements.txt`, un nivel por encima de `Frontend/SinopsIA`. La
-función de Vercel debe poder acceder a ese archivo durante el build. Si Vercel
-no instala FastAPI o las demás dependencias Python, revisa los logs de build y
-coloca `requirements.txt` en la raíz configurada para el proyecto
-(`Frontend/SinopsIA`), conservando allí la lista de dependencias de
-`Frontend/requirements.txt`.
-
-El archivo `vercel.json` contiene únicamente la reescritura de `/api/*`; no
-configura dominios, claves, bases de datos ni otros servicios de Vercel.
+El dominio se configura en Vercel; la configuración de rutas sirve el frontend
+y FastAPI desde ese mismo dominio. Si Vercel mantiene una compilación anterior,
+crea un nuevo despliegue después de guardar los cambios.
