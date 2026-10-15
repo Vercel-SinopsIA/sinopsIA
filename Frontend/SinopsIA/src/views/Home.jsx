@@ -49,37 +49,39 @@ export default function Home() {
       preferences,
     };
 
+    const apiEndpoint = apiBaseUrl ? `${apiBaseUrl}/recommend` : "/api/recommend";
+
     try {
       let response;
       try {
-        response = await fetch(`${apiBaseUrl}/api/recommend`, {
+        response = await fetch(apiEndpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           signal: controller.signal,
           body: JSON.stringify(payload),
         });
 
-        if ((response.status === 404 || response.status === 405) && apiBaseUrl) {
-          const directResponse = await fetch(`${apiBaseUrl}/recommend`, {
+        if (!response.ok && response.status === 404 && apiBaseUrl) {
+          const altResponse = await fetch(`${apiBaseUrl}/api/recommend`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             signal: controller.signal,
             body: JSON.stringify(payload),
           });
-          if (directResponse.ok) {
-            response = directResponse;
+          if (altResponse.ok) {
+            response = altResponse;
           }
         }
       } catch (networkError) {
         if (apiBaseUrl) {
-          const directResponse = await fetch(`${apiBaseUrl}/recommend`, {
+          const altResponse = await fetch(`${apiBaseUrl}/api/recommend`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             signal: controller.signal,
             body: JSON.stringify(payload),
           });
-          if (directResponse.ok) {
-            response = directResponse;
+          if (altResponse.ok) {
+            response = altResponse;
           } else {
             throw networkError;
           }
