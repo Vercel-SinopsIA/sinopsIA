@@ -50,12 +50,38 @@ export default function Home() {
     };
 
     try {
-      const response = await fetch(`${apiBaseUrl}/api/recommend`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify(payload),
-      });
+      let response;
+      try {
+        response = await fetch(`${apiBaseUrl}/api/recommend`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok && apiBaseUrl && !apiBaseUrl.includes("sinopsia.itorgon.es")) {
+          const fallbackResponse = await fetch("https://sinopsia.itorgon.es/api/recommend", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify(payload),
+          });
+          if (fallbackResponse.ok) {
+            response = fallbackResponse;
+          }
+        }
+      } catch (networkError) {
+        if (apiBaseUrl && !apiBaseUrl.includes("sinopsia.itorgon.es")) {
+          response = await fetch("https://sinopsia.itorgon.es/api/recommend", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify(payload),
+          });
+        } else {
+          throw networkError;
+        }
+      }
 
       const data = await response.json();
       if (!response.ok) {

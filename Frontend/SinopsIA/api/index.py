@@ -78,9 +78,25 @@ app = FastAPI(
     version="1.0.0",
 )
 
+ALLOWED_ORIGINS = [
+    "https://sinopsia-seven.vercel.app",
+    "https://sinopsia.itorgon.es",
+    "https://sinopsiaapi.itorgon.es",
+    "https://sinopsiagit.itorgon.es",
+    "https://itorgon.es",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"^https:\/\/([a-zA-Z0-9-]+\.)?itorgon\.es$|^https:\/\/.*\.github\.io$|^https:\/\/.*\.vercel\.app$",
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
@@ -551,8 +567,11 @@ def preflight_handler(full_path: str = "") -> Response:
 
 
 @app.get("/")
+@app.get("/index.py")
+@app.get("/api")
+@app.get("/api/")
 def root() -> dict[str, str]:
-    return {"status": "ok", "service": "SinopsIA API", "docs": "/docs", "health": "/api/health"}
+    return {"status": "ok", "service": "SinopsIA API", "docs": "/docs", "health": "/health"}
 
 
 @app.get("/health")
