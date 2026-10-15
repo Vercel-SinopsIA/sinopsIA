@@ -79,6 +79,7 @@ app = FastAPI(
 )
 
 ALLOWED_ORIGINS = [
+    "https://sinopsiaapi.vercel.app",
     "https://sinopsia-seven.vercel.app",
     "https://sinopsia.itorgon.es",
     "https://sinopsiaapi.itorgon.es",
