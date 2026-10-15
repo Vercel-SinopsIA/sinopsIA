@@ -1,10 +1,8 @@
 /**
  * Obtiene la URL base de la API según el entorno de ejecución.
  * - Si se define VITE_API_URL, se usa esa URL con máxima prioridad.
- * - Si la app se carga desde GitHub Pages (sinopsiagit.itorgon.es o *.github.io),
- *   utiliza la API alojada en Vercel (https://sinopsiaapi.itorgon.es).
- * - En local o en el despliegue principal de Vercel (sinopsia.itorgon.es),
- *   se usa la ruta relativa ('') para operar sobre el mismo origen.
+ * - En desarrollo local, se usa la ruta relativa ('') para usar el proxy de Vite.
+ * - En otros entornos, se conecta a la API en sinopsia-seven.vercel.app.
  */
 export const getApiBaseUrl = () => {
   if (import.meta.env.VITE_API_URL) {
@@ -13,10 +11,10 @@ export const getApiBaseUrl = () => {
 
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    if (hostname.includes('sinopsiagit') || hostname.includes('github.io')) {
-      return 'https://sinopsiaapi.itorgon.es';
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return '';
     }
   }
 
-  return '';
+  return 'https://sinopsia-seven.vercel.app';
 };
