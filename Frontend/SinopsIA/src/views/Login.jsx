@@ -3,8 +3,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaLock, FaSpinner, FaUser } from 'react-icons/fa';
-
-const SOCKET_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://sinopsiaapi.itorgon.es' : '');
+import { getApiBaseUrl } from '../utils/apiConfig';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -20,7 +19,8 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch(`${SOCKET_URL}/api/login`, {
+      const apiBaseUrl = getApiBaseUrl();
+      const response = await fetch(`${apiBaseUrl}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: username, password }),

@@ -1,0 +1,12 @@
+{
+  "name": "sinopsia-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix Frontend/SinopsIA run dev",
+    "build": "npm --prefix Frontend/SinopsIA run build",
+    "predeploy": "npm --prefix Frontend/SinopsIA run build",
+    "deploy": "npm --prefix Frontend/SinopsIA run deploy",
+    "lint": "npm --prefix Frontend/SinopsIA run lint"
+  }
+}

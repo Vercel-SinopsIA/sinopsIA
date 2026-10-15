@@ -23,7 +23,7 @@ export default defineConfig({
       },
     },
   ],
-  base: '/',
+  base: process.env.VITE_BASE || '/',
   server: {
     proxy: {
       "/api": {

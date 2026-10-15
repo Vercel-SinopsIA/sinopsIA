@@ -10,10 +10,10 @@ from pathlib import Path
 from typing import Literal
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from urllib.request import Request as URLRequest, urlopen
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, Request as FastAPIRequest, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from google import genai
 from google.genai import errors, types
@@ -80,17 +80,35 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://sinopsiagit.itorgon.es",
-        "https://itorgon.es",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
-    allow_origin_regex=r"^https:\/\/([a-zA-Z0-9-]+\.)?itorgon\.es$|^https:\/\/.*\.github\.io$",
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def cors_handler(request: FastAPIRequest, call_next):
+    origin = request.headers.get("origin")
+    if request.method == "OPTIONS":
+        return Response(
+            status_code=200,
+            headers={
+                "Access-Control-Allow-Origin": origin if origin else "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE, PATCH",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Credentials": "true" if origin else "false",
+            },
+        )
+    response = await call_next(request)
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+    else:
+        response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
 
 SYSTEM_PROMPT = """
 Eres SinopsIA, un recomendador de películas, series y libros.
@@ -165,7 +183,7 @@ def _best_catalog_match(items: list[dict], title: str, title_fields: tuple[str, 
 
 
 def _fetch_json(url: str, provider: str, operation: str) -> dict:
-    request = Request(
+    request = URLRequest(
         url,
         headers={
             "Accept": "application/json",
@@ -518,6 +536,18 @@ def _enrich_recommendations(
                 unavailable_providers.add(exc.provider)
                 enriched.append(recommendation)
     return enriched, unavailable_providers
+
+
+@app.options("/{full_path:path}")
+def preflight_handler(full_path: str = "") -> Response:
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE, PATCH",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
 
 
 @app.get("/")

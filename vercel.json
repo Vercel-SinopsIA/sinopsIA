@@ -1,21 +1,42 @@
 {
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS,PUT,DELETE,PATCH" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization, X-Requested-With, Accept, Origin" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS,PUT,DELETE,PATCH" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization, X-Requested-With, Accept, Origin" }
+      ]
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/Frontend/SinopsIA/api/index.py"
-    },
-    {
-      "source": "/docs",
-      "destination": "/Frontend/SinopsIA/api/index.py"
-    },
-    {
-      "source": "/openapi.json",
-      "destination": "/Frontend/SinopsIA/api/index.py"
+      "destination": "/api/index.py"
     },
     {
       "source": "/health",
-      "destination": "/Frontend/SinopsIA/api/index.py"
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/docs",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/recommend",
+      "destination": "/api/index.py"
     }
   ]
 }
-

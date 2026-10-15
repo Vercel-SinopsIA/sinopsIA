@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "../routes/paths";
+import { getApiBaseUrl } from "../utils/apiConfig";
 
 const features = [
   {
@@ -23,8 +24,6 @@ const features = [
   },
 ];
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://sinopsiaapi.itorgon.es" : "");
-
 export default function Home() {
   const [contentType, setContentType] = useState("ambos");
   const [genres, setGenres] = useState("");
@@ -43,17 +42,43 @@ export default function Home() {
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 120_000);
 
+    const apiBaseUrl = getApiBaseUrl();
+    const payload = {
+      content_type: contentType,
+      genres: genres.split(",").map((genre) => genre.trim()).filter(Boolean),
+      preferences,
+    };
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/recommend`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify({
-          content_type: contentType,
-          genres: genres.split(",").map((genre) => genre.trim()).filter(Boolean),
-          preferences,
-        }),
-      });
+      let response;
+      try {
+        response = await fetch(`${apiBaseUrl}/api/recommend`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify(payload),
+        });
+
+        if (response.status === 404 && apiBaseUrl.includes("sinopsiaapi")) {
+          response = await fetch("https://sinopsia.itorgon.es/api/recommend", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify(payload),
+          });
+        }
+      } catch (networkError) {
+        if (apiBaseUrl.includes("sinopsiaapi")) {
+          response = await fetch("https://sinopsia.itorgon.es/api/recommend", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify(payload),
+          });
+        } else {
+          throw networkError;
+        }
+      }
 
       const data = await response.json();
       if (!response.ok) {
@@ -66,11 +91,13 @@ export default function Home() {
       setRecommendations(data.recommendations);
       setCatalogNotice(data.catalog_notice || "");
     } catch (requestError) {
-      setError(
-        requestError.name === "AbortError"
-          ? "La solicitud está tardando demasiado. Comprueba el backend e inténtalo de nuevo."
-          : requestError.message || "No se pudo conectar con el servicio.",
-      );
+      let friendlyError = requestError.message || "No se pudo conectar con el servicio.";
+      if (requestError.name === "AbortError") {
+        friendlyError = "La solicitud está tardando demasiado. Comprueba el backend e inténtalo de nuevo.";
+      } else if (requestError.message === "Failed to fetch") {
+        friendlyError = `No se pudo conectar con el backend (${apiBaseUrl || "servidor local"}). Verifica que el servicio esté activo.`;
+      }
+      setError(friendlyError);
     } finally {
       window.clearTimeout(timeoutId);
       setIsLoading(false);
