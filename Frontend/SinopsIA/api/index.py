@@ -588,6 +588,18 @@ def health_check() -> dict[str, str]:
     "/api/recommend",
     response_model=RecommendationResponse,
 )
+@app.post(
+    "/index.py",
+    response_model=RecommendationResponse,
+)
+@app.post(
+    "/api/recommend/",
+    response_model=RecommendationResponse,
+)
+@app.post(
+    "/recommend/",
+    response_model=RecommendationResponse,
+)
 def recommend(payload: RecommendationRequest) -> RecommendationResponse:
     request_started_at = time.monotonic()
     api_key = os.getenv("GEMINI_API_KEY")

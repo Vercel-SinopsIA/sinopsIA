@@ -59,25 +59,30 @@ export default function Home() {
           body: JSON.stringify(payload),
         });
 
-        if (!response.ok && apiBaseUrl && !apiBaseUrl.includes("sinopsia.itorgon.es")) {
-          const fallbackResponse = await fetch("https://sinopsia.itorgon.es/api/recommend", {
+        if ((response.status === 404 || response.status === 405) && apiBaseUrl) {
+          const directResponse = await fetch(`${apiBaseUrl}/recommend`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             signal: controller.signal,
             body: JSON.stringify(payload),
           });
-          if (fallbackResponse.ok) {
-            response = fallbackResponse;
+          if (directResponse.ok) {
+            response = directResponse;
           }
         }
       } catch (networkError) {
-        if (apiBaseUrl && !apiBaseUrl.includes("sinopsia.itorgon.es")) {
-          response = await fetch("https://sinopsia.itorgon.es/api/recommend", {
+        if (apiBaseUrl) {
+          const directResponse = await fetch(`${apiBaseUrl}/recommend`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             signal: controller.signal,
             body: JSON.stringify(payload),
           });
+          if (directResponse.ok) {
+            response = directResponse;
+          } else {
+            throw networkError;
+          }
         } else {
           throw networkError;
         }
