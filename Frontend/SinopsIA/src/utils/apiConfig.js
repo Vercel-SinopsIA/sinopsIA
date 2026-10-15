@@ -31,5 +31,4 @@ export const getApiBaseUrl = () => {
   }
 
   return 'https://sinopsia-seven.vercel.app';
-  return 'https://sinopsia-seven.vercel.app';
 };
