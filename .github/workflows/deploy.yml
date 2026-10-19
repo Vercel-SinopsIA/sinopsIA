@@ -36,6 +36,9 @@ jobs:
 
       - name: Build Frontend
         working-directory: Frontend/SinopsIA
+        env:
+          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY || vars.CLERK_PUBLISHABLE_KEY || 'pk_test_ZW5kbGVzcy1jb3lvdGUtOTA5MC5jbGVyay5hY2NvdW50cy5kZXYk' }}
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY || secrets.CLERK_PUBLISHABLE_KEY || vars.VITE_CLERK_PUBLISHABLE_KEY || vars.CLERK_PUBLISHABLE_KEY || 'pk_test_ZW5kbGVzcy1jb3lvdGUtOTA5MC5jbGVyay5hY2NvdW50cy5kZXYk' }}
         run: npm run build
 
       - name: Deploy to gh-pages branch

@@ -23,6 +23,7 @@ export default defineConfig({
       },
     },
   ],
+  envPrefix: ['VITE_', 'CLERK_'],
   base: process.env.VITE_BASE || '/',
   server: {
     proxy: {

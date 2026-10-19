@@ -2,6 +2,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import RootLayout from '../layouts/RootLayout.jsx';
 import { Home,About,Login,Register,ErrorPage } from '../views/indexViews';
+import ProtectedHistory from './ProtectedHistory.jsx';
 import { ROUTES } from './paths';
 
 export const router = createBrowserRouter([
@@ -11,7 +12,7 @@ export const router = createBrowserRouter([
     children: [
       // Rutas públicas
       {
-        path: ROUTES.HOME, // "/"
+        path: ROUTES.HOME,
         element: <Home />,
       },
       {
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.REGISTER, // "/register"
         element: <Register />,
+      },
+      {
+        path: ROUTES.HISTORY,
+        element: <ProtectedHistory />,
       },
     ],
   },
