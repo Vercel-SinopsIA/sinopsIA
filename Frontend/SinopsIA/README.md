@@ -51,9 +51,9 @@ if [ ! -f .env.local ]; then cp .env.local.example .env.local; fi
 ```
 
 Edita `.env.local` con un editor y rellena `GEMINI_API_KEY`, `TMDB_API_KEY` y
-`VITE_CLERK_PUBLISHABLE_KEY`. Obtén la clave publicable en el panel de Clerk.
-El prefijo `VITE_` hace que esta clave sea accesible desde el navegador; no
-añadas la clave secreta de Clerk al frontend.
+`CLERK_PUBLISHABLE_KEY`. Obtén la clave publicable en el panel de Clerk. Vite
+inserta únicamente esa clave publicable en el frontend; no añadas la clave
+secreta de Clerk.
 Opcionalmente, añade `GOOGLE_BOOKS_API_KEY` para autenticar las búsquedas de
 portadas de Google Books ([Google Books API](https://developers.google.com/books/docs/v1/using)).
 Puedes dejar `GEMINI_MODEL=gemini-3.8-flash` o seleccionar otro modelo
@@ -63,11 +63,11 @@ plataformas de streaming; puedes cambiarla por otro código de país compatible.
 **No publiques ni subas `.env.local` a Git.** Está excluido mediante
 `.gitignore`. No guardes secretos del backend en el frontend ni en variables
 `VITE_*`, porque acabarían incluidas en el código público que recibe el
-navegador. `VITE_CLERK_PUBLISHABLE_KEY` es la excepción: Clerk la diseña para
-usarse públicamente en el cliente. En Vercel, configura
-`VITE_CLERK_PUBLISHABLE_KEY`, `GEMINI_API_KEY`, `TMDB_API_KEY` y, opcionalmente,
-`GEMINI_MODEL`, `TMDB_REGION` y `GOOGLE_BOOKS_API_KEY` en **Project Settings →
-Environment Variables**.
+navegador. `CLERK_PUBLISHABLE_KEY` no es un secreto: Clerk la diseña para
+usarse públicamente en el cliente. Vite solo expone esa variable concreta. En
+Vercel, configura `CLERK_PUBLISHABLE_KEY`, `GEMINI_API_KEY`, `TMDB_API_KEY` y,
+opcionalmente, `GEMINI_MODEL`, `TMDB_REGION` y `GOOGLE_BOOKS_API_KEY` en
+**Project Settings → Environment Variables**.
 
 Las búsquedas de usuarios con sesión iniciada se guardan en el `localStorage`
 del navegador, separadas por el ID de usuario de Clerk y limitadas a las 30 más
