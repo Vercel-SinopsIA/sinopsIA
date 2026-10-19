@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useUser } from "@clerk/react";
+import RecommendationCards from "../Components/RecommendationCards.jsx";
 import { ROUTES } from "../routes/paths";
 import { getApiBaseUrl, PRODUCTION_API_URLS } from "../utils/apiConfig";
+import { addSearchToHistory } from "../utils/searchHistory.js";
 
 const features = [
   {
@@ -32,20 +35,27 @@ export default function Home() {
   const [error, setError] = useState("");
   const [catalogNotice, setCatalogNotice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [historyNotice, setHistoryNotice] = useState("");
+  const { isLoaded, isSignedIn, user } = useUser();
 
   const handleRecommendationSubmit = async (event) => {
     event.preventDefault();
     setError("");
     setCatalogNotice("");
+    setHistoryNotice("");
     setRecommendations([]);
     setIsLoading(true);
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 120_000);
 
     const apiBaseUrl = getApiBaseUrl();
+    const parsedGenres = genres
+      .split(",")
+      .map((genre) => genre.trim())
+      .filter(Boolean);
     const payload = {
       content_type: contentType,
-      genres: genres.split(",").map((genre) => genre.trim()).filter(Boolean),
+      genres: parsedGenres,
       preferences,
     };
 
@@ -81,22 +91,47 @@ export default function Home() {
         throw lastNetworkError;
       }
 
-      const data = await response.json();
       if (!response.ok) {
-        const validationError = Array.isArray(data.detail)
-          ? data.detail.map((item) => item.msg).join(" ")
-          : data.detail;
-        throw new Error(validationError || "No se pudieron obtener recomendaciones.");
+        let errorMessage = `Error del servidor (${response.status})`;
+        try {
+          const errorData = await response.json();
+          errorMessage = Array.isArray(errorData.detail)
+            ? errorData.detail.map((item) => item.msg).join(" ")
+            : errorData.detail || errorMessage;
+        } catch {
+          if (response.status === 404) {
+            errorMessage =
+              "No se encontró el servicio backend (/api/recommend). Asegúrate de que el backend esté desplegado.";
+          }
+        }
+        throw new Error(errorMessage);
       }
+
+      const data = await response.json();
 
       setRecommendations(data.recommendations);
       setCatalogNotice(data.catalog_notice || "");
+      if (isLoaded && isSignedIn) {
+        try {
+          addSearchToHistory(user.id, {
+            contentType,
+            genres: parsedGenres,
+            preferences,
+            catalogNotice: data.catalog_notice || "",
+            recommendations: data.recommendations,
+          });
+        } catch {
+          setHistoryNotice(
+            "No se pudo guardar la búsqueda en el historial de este navegador.",
+          );
+        }
+      }
     } catch (requestError) {
       let friendlyError = requestError.message || "No se pudo conectar con el servicio.";
       if (requestError.name === "AbortError") {
         friendlyError = "La solicitud está tardando demasiado. Comprueba el backend e inténtalo de nuevo.";
       } else if (requestError.message === "Failed to fetch") {
-        friendlyError = `No se pudo conectar con el backend (${apiBaseUrl || "servidor local"}). Verifica que el servicio esté activo.`;
+        friendlyError = `No se pudo conectar con el backend (${apiBaseUrl || "servidor local"}). Verifica que el servicio esté activo y con el certificado SSL válido.`;
       }
       setError(friendlyError);
     } finally {
@@ -205,6 +240,16 @@ export default function Home() {
           >
             {isLoading ? "Consultando IA y catálogos..." : "Recomiéndame"}
           </button>
+          {isLoaded && !isSignedIn && (
+            <p className="mt-3 text-sm text-slate-600">
+              Inicia sesión para guardar tus búsquedas en el historial.
+            </p>
+          )}
+          {historyNotice && (
+            <p role="alert" className="mt-3 text-sm text-amber-800">
+              {historyNotice}
+            </p>
+          )}
           {error && (
             <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
               {error}
@@ -229,92 +274,7 @@ export default function Home() {
               {catalogNotice}
             </p>
           )}
-          <div className="grid gap-6 md:grid-cols-3">
-            {recommendations.map((recommendation, index) => (
-              <article
-                key={`${recommendation.title}-${index}`}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-              >
-                {recommendation.image_url ? (
-                  <img
-                    src={recommendation.image_url}
-                    alt={`Portada o póster de ${recommendation.title}`}
-                    loading="lazy"
-                    className="h-72 w-full object-cover object-center"
-                  />
-                ) : (
-                  <div
-                    aria-hidden="true"
-                    className="flex h-72 items-center justify-center bg-slate-100 text-6xl"
-                  >
-                    {recommendation.type === "libro" ? "📚" : "🎬"}
-                  </div>
-                )}
-                <div className="p-6">
-                  <span className="text-sm font-semibold uppercase tracking-wide text-sky-700">
-                    {recommendation.type === "pelicula"
-                      ? "Película"
-                      : recommendation.type === "serie"
-                        ? "Serie"
-                        : "Libro"}
-                  </span>
-                  <h3 className="mt-2 text-xl font-bold text-slate-900">
-                    {recommendation.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {recommendation.creator}
-                  </p>
-                  <p className="mt-4 leading-7 text-slate-700">
-                    {recommendation.synopsis}
-                  </p>
-                  <p className="mt-4 border-t border-slate-100 pt-4 text-sm leading-6 text-slate-600">
-                    <span className="font-semibold text-slate-800">
-                      Por qué puede gustarte:{" "}
-                    </span>
-                    {recommendation.reason}
-                  </p>
-                  {recommendation.type !== "libro" && (
-                    <div className="mt-4 border-t border-slate-100 pt-4 text-sm">
-                      <h4 className="font-semibold text-slate-800">
-                        Dónde verlo en España
-                      </h4>
-                      {recommendation.platforms.length > 0 ? (
-                        <ul className="mt-2 flex flex-wrap gap-2">
-                          {recommendation.platforms.map((platform) => (
-                            <li
-                              key={platform}
-                              className="rounded-full bg-sky-50 px-3 py-1 font-medium text-sky-800"
-                            >
-                              {platform}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="mt-2 text-slate-500">
-                          No hay plataformas registradas actualmente.
-                        </p>
-                      )}
-                      {recommendation.availability_url && (
-                        <a
-                          href={recommendation.availability_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-3 inline-block font-semibold text-sky-700 underline underline-offset-2 hover:text-sky-900"
-                        >
-                          Ver disponibilidad
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
-          <p className="mt-6 text-center text-xs text-slate-500">
-            Los datos de películas, series y proveedores de visualización se
-            obtienen de TMDb. Este producto no está aprobado ni certificado por
-            TMDb.
-          </p>
+          <RecommendationCards recommendations={recommendations} />
         </section>
       )}
 
