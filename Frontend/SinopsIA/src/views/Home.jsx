@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "../routes/paths";
-import { getApiBaseUrl } from "../utils/apiConfig";
+import { getApiBaseUrl, PRODUCTION_API_URLS } from "../utils/apiConfig";
 
 const features = [
   {
@@ -49,45 +49,36 @@ export default function Home() {
       preferences,
     };
 
-    const apiEndpoint = apiBaseUrl ? `${apiBaseUrl}/recommend` : "/api/recommend";
+    const candidateUrls = apiBaseUrl
+      ? Array.from(new Set([apiBaseUrl, ...PRODUCTION_API_URLS])).flatMap((base) => [
+          `${base}/recommend`,
+          `${base}/api/recommend`,
+        ])
+      : ["/api/recommend", "/recommend"];
 
     try {
       let response;
-      try {
-        response = await fetch(apiEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify(payload),
-        });
+      let lastNetworkError;
 
-        if (!response.ok && response.status === 404 && apiBaseUrl) {
-          const altResponse = await fetch(`${apiBaseUrl}/api/recommend`, {
+      for (const endpoint of candidateUrls) {
+        try {
+          const currentResponse = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             signal: controller.signal,
             body: JSON.stringify(payload),
           });
-          if (altResponse.ok) {
-            response = altResponse;
+          response = currentResponse;
+          if (currentResponse.ok || (currentResponse.status !== 404 && currentResponse.status !== 405)) {
+            break;
           }
+        } catch (networkError) {
+          lastNetworkError = networkError;
         }
-      } catch (networkError) {
-        if (apiBaseUrl) {
-          const altResponse = await fetch(`${apiBaseUrl}/api/recommend`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            signal: controller.signal,
-            body: JSON.stringify(payload),
-          });
-          if (altResponse.ok) {
-            response = altResponse;
-          } else {
-            throw networkError;
-          }
-        } else {
-          throw networkError;
-        }
+      }
+
+      if (!response && lastNetworkError) {
+        throw lastNetworkError;
       }
 
       const data = await response.json();
