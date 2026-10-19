@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useUser } from "@clerk/react";
+import RecommendationCards from "../Components/RecommendationCards.jsx";
 import { ROUTES } from "../routes/paths";
 import { getApiBaseUrl } from "../utils/apiConfig";
+import { addSearchToHistory } from "../utils/searchHistory.js";
 
 const features = [
   {
@@ -32,11 +35,14 @@ export default function Home() {
   const [error, setError] = useState("");
   const [catalogNotice, setCatalogNotice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [historyNotice, setHistoryNotice] = useState("");
+  const { isLoaded, isSignedIn, user } = useUser();
 
   const handleRecommendationSubmit = async (event) => {
     event.preventDefault();
     setError("");
     setCatalogNotice("");
+    setHistoryNotice("");
     setRecommendations([]);
     setIsLoading(true);
     const controller = new AbortController();
@@ -74,6 +80,21 @@ export default function Home() {
 
       setRecommendations(data.recommendations);
       setCatalogNotice(data.catalog_notice || "");
+      if (isLoaded && isSignedIn) {
+        try {
+          addSearchToHistory(user.id, {
+            contentType,
+            genres: genres.split(",").map((genre) => genre.trim()).filter(Boolean),
+            preferences,
+            catalogNotice: data.catalog_notice || "",
+            recommendations: data.recommendations,
+          });
+        } catch {
+          setHistoryNotice(
+            "No se pudo guardar la búsqueda en el historial de este navegador.",
+          );
+        }
+      }
     } catch (requestError) {
       let friendlyError = requestError.message || "No se pudo conectar con el servicio.";
       if (requestError.name === "AbortError") {
@@ -188,6 +209,16 @@ export default function Home() {
           >
             {isLoading ? "Consultando IA y catálogos..." : "Recomiéndame"}
           </button>
+          {isLoaded && !isSignedIn && (
+            <p className="mt-3 text-sm text-slate-600">
+              Inicia sesión para guardar tus búsquedas en el historial.
+            </p>
+          )}
+          {historyNotice && (
+            <p role="alert" className="mt-3 text-sm text-amber-800">
+              {historyNotice}
+            </p>
+          )}
           {error && (
             <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
               {error}
@@ -212,92 +243,7 @@ export default function Home() {
               {catalogNotice}
             </p>
           )}
-          <div className="grid gap-6 md:grid-cols-3">
-            {recommendations.map((recommendation, index) => (
-              <article
-                key={`${recommendation.title}-${index}`}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-              >
-                {recommendation.image_url ? (
-                  <img
-                    src={recommendation.image_url}
-                    alt={`Portada o póster de ${recommendation.title}`}
-                    loading="lazy"
-                    className="h-72 w-full object-cover object-center"
-                  />
-                ) : (
-                  <div
-                    aria-hidden="true"
-                    className="flex h-72 items-center justify-center bg-slate-100 text-6xl"
-                  >
-                    {recommendation.type === "libro" ? "📚" : "🎬"}
-                  </div>
-                )}
-                <div className="p-6">
-                  <span className="text-sm font-semibold uppercase tracking-wide text-sky-700">
-                    {recommendation.type === "pelicula"
-                      ? "Película"
-                      : recommendation.type === "serie"
-                        ? "Serie"
-                        : "Libro"}
-                  </span>
-                  <h3 className="mt-2 text-xl font-bold text-slate-900">
-                    {recommendation.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {recommendation.creator}
-                  </p>
-                  <p className="mt-4 leading-7 text-slate-700">
-                    {recommendation.synopsis}
-                  </p>
-                  <p className="mt-4 border-t border-slate-100 pt-4 text-sm leading-6 text-slate-600">
-                    <span className="font-semibold text-slate-800">
-                      Por qué puede gustarte:{" "}
-                    </span>
-                    {recommendation.reason}
-                  </p>
-                  {recommendation.type !== "libro" && (
-                    <div className="mt-4 border-t border-slate-100 pt-4 text-sm">
-                      <h4 className="font-semibold text-slate-800">
-                        Dónde verlo en España
-                      </h4>
-                      {recommendation.platforms.length > 0 ? (
-                        <ul className="mt-2 flex flex-wrap gap-2">
-                          {recommendation.platforms.map((platform) => (
-                            <li
-                              key={platform}
-                              className="rounded-full bg-sky-50 px-3 py-1 font-medium text-sky-800"
-                            >
-                              {platform}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="mt-2 text-slate-500">
-                          No hay plataformas registradas actualmente.
-                        </p>
-                      )}
-                      {recommendation.availability_url && (
-                        <a
-                          href={recommendation.availability_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-3 inline-block font-semibold text-sky-700 underline underline-offset-2 hover:text-sky-900"
-                        >
-                          Ver disponibilidad
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
-          <p className="mt-6 text-center text-xs text-slate-500">
-            Los datos de películas, series y proveedores de visualización se
-            obtienen de TMDb. Este producto no está aprobado ni certificado por
-            TMDb.
-          </p>
+          <RecommendationCards recommendations={recommendations} />
         </section>
       )}
 

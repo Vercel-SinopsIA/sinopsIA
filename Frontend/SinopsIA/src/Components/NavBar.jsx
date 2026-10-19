@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { UserButton, useUser } from "@clerk/react";
 import { ROUTES } from "../routes/paths";
 
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isLoaded, isSignedIn, user } = useUser();
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
+  const userName =
+    user?.firstName ||
+    user?.username ||
+    user?.fullName ||
+    user?.primaryEmailAddress?.emailAddress;
 
   return (
     <div className="relative z-40">
@@ -28,11 +35,19 @@ const NavBar = () => {
             >
               SinopsIA
             </NavLink>
+            {isLoaded && isSignedIn && userName && (
+              <span className="text-sm font-medium text-white sm:text-base">
+                Hola, {userName}
+              </span>
+            )}
           </div>
 
-          <span className="hidden text-sm font-medium text-white sm:block sm:text-base">
-            Recomendador de series, películas y libros
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-sm font-medium text-white sm:block sm:text-base">
+              Recomendador de series, películas y libros
+            </span>
+            {isLoaded && isSignedIn && <UserButton />}
+          </div>
         </div>
       </nav>
 
@@ -63,24 +78,39 @@ const NavBar = () => {
             </NavLink>
           </li>
 
-          <li>
-            <NavLink
-              to={ROUTES.LOGIN}
-              onClick={closeMenu}
-              className="block rounded-lg p-2 transition-all duration-300 ease-in-out hover:bg-[#FFA500] hover:text-black"
-            >
-              Iniciar sesión
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to={ROUTES.REGISTER}
-              onClick={closeMenu}
-              className="block rounded-lg p-2 transition-all duration-300 ease-in-out hover:bg-[#FFA500] hover:text-black"
-            >
-              Crear cuenta
-            </NavLink>
-          </li>
+          {isLoaded && !isSignedIn && (
+            <>
+              <li>
+                <NavLink
+                  to={ROUTES.LOGIN}
+                  onClick={closeMenu}
+                  className="block rounded-lg p-2 transition-all duration-300 ease-in-out hover:bg-[#FFA500] hover:text-black"
+                >
+                  Iniciar sesión
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to={ROUTES.REGISTER}
+                  onClick={closeMenu}
+                  className="block rounded-lg p-2 transition-all duration-300 ease-in-out hover:bg-[#FFA500] hover:text-black"
+                >
+                  Crear cuenta
+                </NavLink>
+              </li>
+            </>
+          )}
+          {isLoaded && isSignedIn && (
+            <li>
+              <NavLink
+                to={ROUTES.HISTORY}
+                onClick={closeMenu}
+                className="block rounded-lg p-2 transition-all duration-300 ease-in-out hover:bg-[#FFA500] hover:text-black"
+              >
+                Mi historial
+              </NavLink>
+            </li>
+          )}
         </ul>
       </div>
     </div>
