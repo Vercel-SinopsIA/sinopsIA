@@ -175,15 +175,16 @@ Vercel a `package.json`.
    - `TMDB_REGION` (opcional; por defecto `ES`).
    - `GOOGLE_BOOKS_API_KEY` (opcional; Open Library se usa como alternativa
      para las portadas).
-   - `VITE_CLERK_PUBLISHABLE_KEY` (obligatoria para iniciar sesión y crear
+   - `CLERK_PUBLISHABLE_KEY` (obligatoria para iniciar sesión y crear
      cuentas; obtén la clave publicable en el panel de Clerk).
 5. Crea un despliegue y comprueba que la URL principal (`/`) muestra el inicio.
    Después, comprueba `/api/health` y envía una recomendación desde la página
    para validar también Gemini y los catálogos.
 
 Configura las variables en los entornos de Vercel que vayas a utilizar
-(Production, Preview y/o Development). No las añadas al frontend ni a variables
-con prefijo `VITE_`.
+(Production, Preview y/o Development). La configuración de Vite solo expone
+`CLERK_PUBLISHABLE_KEY` en el bundle de cliente; no añadas la clave secreta de
+Clerk.
 
 El dominio se configura en Vercel; la configuración de rutas sirve el frontend
 y FastAPI desde ese mismo dominio. Si Vercel mantiene una compilación anterior,
