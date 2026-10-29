@@ -17,8 +17,8 @@ servidor.
   Library; no necesitan clave adicional. Se puede configurar opcionalmente
   `GOOGLE_BOOKS_API_KEY` para autenticar las consultas a
   [Google Books API](https://developers.google.com/books/docs/v1/using).
-### Pediente
-  - Autentificacion con clark
+- Una clave publicable de Clerk para iniciar sesión y crear cuentas. La clave
+  secreta de Clerk no debe añadirse al frontend.
 
 ## Instalar y configurar
 
@@ -51,17 +51,26 @@ existe, para no sobrescribir una clave que ya hayas configurado:
 if [ ! -f .env.local ]; then cp .env.local.example .env.local; fi
 ```
 
-Edita `.env.local` y rellena `GEMINI_API_KEY` y `TMDB_API_KEY`. Puedes dejar el
-modelo por defecto (`GEMINI_MODEL=gemini-3.8-flash`) o elegir otro disponible
-para tu cuenta. `TMDB_REGION=ES` configura el país usado al consultar plataformas.
-Opcionalmente, añade `GOOGLE_BOOKS_API_KEY` para usar la API key de Google Books.
+Edita `.env.local` y rellena `GEMINI_API_KEY`, `TMDB_API_KEY` y
+`CLERK_PUBLISHABLE_KEY`. Obtén la clave publicable en el panel de Clerk. Vite
+expone únicamente esta clave publicable al frontend; no añadas la clave secreta
+de Clerk. Puedes dejar el modelo por defecto (`GEMINI_MODEL=gemini-3.8-flash`)
+o elegir otro disponible para tu cuenta. `TMDB_REGION=ES` configura el país
+usado al consultar plataformas. Opcionalmente, añade `GOOGLE_BOOKS_API_KEY`
+para autenticar las consultas a Google Books.
 
 **No publiques ni subas `.env.local` a Git.** Está excluido mediante
 `.gitignore`. No guardes la clave en el frontend ni en variables `VITE_*`,
 porque acabaría incluida en el código público que recibe el navegador. En
-Vercel, configura `GEMINI_API_KEY`, `TMDB_API_KEY` y, opcionalmente,
-`GEMINI_MODEL`, `TMDB_REGION` y `GOOGLE_BOOKS_API_KEY` en **Project Settings →
-Environment Variables**.
+Vercel, configura `CLERK_PUBLISHABLE_KEY`, `GEMINI_API_KEY`, `TMDB_API_KEY` y,
+opcionalmente, `GEMINI_MODEL`, `TMDB_REGION` y `GOOGLE_BOOKS_API_KEY` en
+**Project Settings → Environment Variables**. La clave publicable de Clerk no
+es secreta y está diseñada para usarse en el cliente.
+
+Las búsquedas de usuarios con sesión iniciada se guardan en el `localStorage`
+del navegador, separadas por el ID de usuario de Clerk y limitadas a las 30 más
+recientes. El historial solo está disponible en ese navegador y no se sincroniza
+entre dispositivos.
 
 ## Arrancar las dos partes
 
@@ -104,12 +113,14 @@ plataformas de películas y series proceden de TMDb para la región configurada;
 las portadas de libros se buscan primero en Google Books y después en Open
 Library si no hay portada o Google Books responde con error; Open Library prueba
 con título y autor y, después, con el título solamente.
+Si ningún proveedor encuentra una portada, se muestra la recomendación sin
+imagen.
 
-El terminal de FastAPI indica cada etapa junto con el proveedor (`Gemini`,
-`Google Books` o `TMDb`). Los errores HTTP del catálogo identifican proveedor,
-operación y estado; ante un HTTP 429 conserva las recomendaciones de Gemini y
-la interfaz avisa qué catálogo limitó las consultas. No se registran las claves
-ni las URLs de petición.
+El terminal de FastAPI registra cada etapa con proveedor y operación (Gemini,
+Google Books, Open Library o TMDb). Los errores HTTP del catálogo identifican
+proveedor, operación y estado; ante un HTTP 429 conserva las recomendaciones
+de Gemini y la interfaz avisa qué catálogo limitó las consultas. No se
+registran las claves ni las URLs de petición.
 
 También se puede llamar a la API directamente. Desde una terminal en
 `Frontend/SinopsIA`:
@@ -145,10 +156,12 @@ npm run lint
 
 ## Despliegue en Vercel
 
-La aplicación incluye `Frontend/SinopsIA/vercel.json`, que reescribe las rutas
-`/api/*` hacia `api/index.py`. Ese archivo expone FastAPI como función Python;
-Vite genera el frontend estático en `dist`. No se incluye el CLI de Vercel como
-dependencia npm.
+La aplicación incluye `Frontend/SinopsIA/vercel.json`, que dirige las rutas
+`/api/*` hacia `api/index.py` y el resto de rutas a `index.html` para que React
+gestione la navegación. Ese archivo expone FastAPI como función Python; Vite
+genera el frontend estático en `dist`. El frontend y la API comparten dominio y
+usan rutas relativas, por lo que no dependen de CORS ni de un segundo dominio.
+No se incluye el CLI de Vercel como dependencia npm.
 
 Para desplegar:
 
@@ -161,20 +174,14 @@ Para desplegar:
    - `GEMINI_MODEL` (opcional; por defecto `gemini-3.8-flash`).
    - `TMDB_REGION` (opcional; por defecto `ES`).
    - `GOOGLE_BOOKS_API_KEY` (opcional).
-5. Añade cada variable a los entornos Preview, Production o Development que
-   vayas a usar y vuelve a desplegar para que surtan efecto.
-6. Verifica `/api/health` y prueba una recomendación desde la web desplegada.
+   - `CLERK_PUBLISHABLE_KEY` (necesaria para iniciar sesión y crear cuentas;
+     obtén la clave publicable en el panel de Clerk).
+5. Añade las variables a los entornos Preview, Production o Development que
+   vayas a usar y crea un despliegue.
+6. Verifica que la URL principal (`/`) muestra el inicio, comprueba
+   `/api/health` y prueba una recomendación desde la web desplegada.
 
-Las claves son variables del servidor: no deben tener prefijo `VITE_` ni
-incluirse en el código del frontend. El `vercel.json` actual solo define la
-reescritura de `/api/*`; dominios, variables y ajustes de proyecto se gestionan
-por separado en el panel de Vercel.
-
-**Nota sobre dependencias Python:** el archivo actual está en
-`Frontend/requirements.txt`, fuera del directorio configurado como raíz de la
-aplicación (`Frontend/SinopsIA`). Asegúrate de que el build de Vercel encuentra
-ese archivo. Si el build indica que faltan dependencias del backend, coloca una
-copia de `requirements.txt` en `Frontend/SinopsIA` con la misma lista de
-paquetes y vuelve a desplegar.
-
-Fin
+Configura las variables en los entornos de Vercel que vayas a utilizar. Solo
+`CLERK_PUBLISHABLE_KEY` debe exponerse al cliente; no añadas la clave secreta de
+Clerk ni claves de Gemini, TMDb o Google Books a variables `VITE_*`. El dominio
+y los ajustes del proyecto se gestionan por separado en el panel de Vercel.
